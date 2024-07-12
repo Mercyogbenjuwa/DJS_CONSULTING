@@ -6,4 +6,9 @@ export class CreatePostDto {
 
   @ApiProperty()
   content: string;
+
+
+  @ApiProperty()
+  coverImgUrl: string;
+
 }

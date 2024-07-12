@@ -6,7 +6,7 @@ import { Post } from "src/posts/entities/post/post";
 export interface IPostsService {
   findAll(): Promise<Post[]>;
   findOne(id: string): Promise<Post>;
-  create(createPostDto: CreatePostDto): Promise<Post>;
-  update(id: string, updatePostDto: UpdatePostDto): Promise<Post>;
+  create(createPostDto: CreatePostDto, userId: string): Promise<Post>;
+  update(id: string, updatePostDto: UpdatePostDto, userId: string): Promise<Post>;
   remove(id: string): Promise<void>;
 }

@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Post } from 'src/posts/entities/post/post';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 
 @Entity()
@@ -12,6 +13,13 @@ export class User {
   @Column()
   password: string;
 
-  @Column({ default: false })
+  @Column()
+  profileUrl: string;
+
+  @Column({ default: true })
   isAdmin: boolean;
+
+  @OneToMany(() => Post, post => post.user)
+  posts: Post[];
+
 }

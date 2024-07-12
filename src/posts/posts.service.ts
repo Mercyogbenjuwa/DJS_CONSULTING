@@ -5,13 +5,18 @@ import { IPostsService } from './interfaces/posts.service.interface/posts.servic
 import { CreatePostDto } from './dto/create-post.dto/create-post.dto';
 import { Post } from './entities/post/post';
 import { UpdatePostDto } from './dto/update-post.dto/update-post.dto';
+import { logger } from 'src/common/logger';
+import { User } from 'src/auth/entities/user/user';
 
 
 @Injectable()
 export class PostsService implements IPostsService {
+  private logPrefix: string = '[POST_SERVICE_LOGS]';
   constructor(
     @InjectRepository(Post)
     private postsRepository: Repository<Post>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>
   ) {}
 
   async findAll(): Promise<Post[]> {
@@ -19,7 +24,15 @@ export class PostsService implements IPostsService {
   }
 
   async findOne(id: string): Promise<Post> {
-    const post = await this.postsRepository.findOne({ where: { id } });
+    const post = await this.postsRepository.findOne({ 
+      where: { id },
+      relations: ['user'], 
+    });
+    logger.info(
+      `${this.logPrefix} Post fetched successfully: ${JSON.stringify(
+        post,
+      )}`,
+    );
     if (!post) {
       throw new NotFoundException('Post not found');
     }
@@ -27,16 +40,41 @@ export class PostsService implements IPostsService {
   }
 
 
-  async create(createPostDto: CreatePostDto): Promise<Post> {
-    const post = this.postsRepository.create(createPostDto);
-    return this.postsRepository.save(post);
+  async create(createPostDto: CreatePostDto, userId: string): Promise<Post> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    const post = this.postsRepository.create({
+      ...createPostDto,
+      user
+    });
+  logger.info(
+      `${this.logPrefix} Post created successfully: ${JSON.stringify(post)}`,
+    );
+    return this.postsRepository.save(post); 
   }
 
-  async update(id: string, updatePostDto: UpdatePostDto): Promise<Post> {
+
+  async update(id: string, updatePostDto: UpdatePostDto, userId: string): Promise<Post> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
     const post = await this.postsRepository.preload({
       id,
       ...updatePostDto,
+      user
     });
+    logger.info(
+      `${this.logPrefix} Post updated successfully: ${JSON.stringify(
+        post,
+      )}`,
+    );
     if (!post) {
       throw new NotFoundException('Post not found');
     }
@@ -47,4 +85,5 @@ export class PostsService implements IPostsService {
     const post = await this.findOne(id);
     await this.postsRepository.remove(post);
   }
+
 }

@@ -6,4 +6,8 @@ export class UpdatePostDto {
 
   @ApiProperty()
   content?: string;
+
+  @ApiProperty()
+  coverImgUrl: string;
+
 }

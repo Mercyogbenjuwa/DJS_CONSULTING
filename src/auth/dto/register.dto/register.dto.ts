@@ -16,4 +16,12 @@ export class RegisterDto {
     example: 'P@ssw0rd123',
   })
   password: string;
+
+
+  @ApiProperty({
+    type: String,
+    required: true,
+    description: 'The image to display on your profile .',
+  })
+  profileUrl: string;
 }

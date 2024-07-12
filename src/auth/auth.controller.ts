@@ -16,7 +16,7 @@ export class AuthController {
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Invalid credentials' })
   async login(@Body() loginDto: LoginDto) {
     try {
-      const data = await this.authService.login(loginDto.email, loginDto.password);
+      const data = await this.authService.login(loginDto);
       return ResponseFormat(StatusCode.SUCCESS, ResponseMessage.LOGIN_SUCCESS, data);
     } catch (error) {
       return ResponseFormat(StatusCode.UNAUTHORIZED, error.message);
@@ -29,7 +29,7 @@ export class AuthController {
   @ApiResponse({ status: StatusCode.CONFLICT, description: 'User already exists' })
   async register(@Body() registerDto: RegisterDto) {
     try {
-      const data = await this.authService.register(registerDto.email, registerDto.password);
+      const data = await this.authService.register(registerDto);
       return ResponseFormat(StatusCode.CREATED, ResponseMessage.REGISTRATION_SUCCESS, data);
     } catch (error) {
       return ResponseFormat(StatusCode.CONFLICT, error.message);

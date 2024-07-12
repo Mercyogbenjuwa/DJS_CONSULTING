@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards, Req, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, UseGuards, Req, Patch } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { ApiTags, ApiResponse, ApiOperation } from '@nestjs/swagger';
 import { ResponseFormat, ResponseMessage, StatusCode } from '../common/constants';
@@ -35,28 +35,28 @@ export class PostsController {
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Create a post', description: 'Creates a new blog post. Requires admin privileges.' })
   @ApiResponse({ status: StatusCode.CREATED, description: ResponseMessage.POST_CREATED })
-  async create(@Body() createPostDto: CreatePostDto, @Req() req: any) {
+  async create(@Body() createPostDto: CreatePostDto,  userId: string, @Req() req: any) {
     try {
       if (!req.user.isAdmin) {
         return ResponseFormat(StatusCode.FORBIDDEN, ResponseMessage.FORBIDDEN);
       }
-      const data = await this.postsService.create(createPostDto);
+      const data = await this.postsService.create(createPostDto, userId);
       return ResponseFormat(StatusCode.CREATED, ResponseMessage.POST_CREATED, data);
     } catch (error) {
       return ResponseFormat(StatusCode.BAD_REQUEST, error.message);
     }
   }
 
-  @Put(':id')
+  @Patch(':id')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Update a post', description: 'Updates an existing blog post by ID. Requires admin privileges.' })
   @ApiResponse({ status: StatusCode.SUCCESS, description: ResponseMessage.POST_UPDATED })
-  async update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto, @Req() req: any) {
+  async update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto, userId: string,@Req() req: any) {
     try {
       if (!req.user.isAdmin) {
         return ResponseFormat(StatusCode.FORBIDDEN, ResponseMessage.FORBIDDEN);
       }
-      const data = await this.postsService.update(id, updatePostDto);
+      const data = await this.postsService.update(id, updatePostDto, userId);
       return ResponseFormat(StatusCode.SUCCESS, ResponseMessage.POST_UPDATED, data);
     } catch (error) {
       return ResponseFormat(StatusCode.NOT_FOUND, error.message);
