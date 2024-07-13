@@ -9,6 +9,7 @@ export const ResponseMessage = {
     FORBIDDEN: 'Forbidden',
   };
   
+  
   export const StatusCode = {
     SUCCESS: 200,
     CREATED: 201,
@@ -19,6 +20,7 @@ export const ResponseMessage = {
     INTERNAL_SERVER_ERROR: 500,
     CONFLICT : 409
   };
+
   
   export const ResponseFormat = (statusCode: number, message: string, data: any = null) => {
     return {

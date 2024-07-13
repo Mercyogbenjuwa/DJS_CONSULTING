@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, HttpStatus, HttpCode, HttpException } from '@nestjs/common';
 import { ApiTags, ApiResponse, ApiOperation } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { ResponseFormat, ResponseMessage, StatusCode } from 'src/common/constants';
@@ -12,27 +12,41 @@ export class AuthController {
 
   @Post('login')
   @ApiOperation({ summary: 'Login a user', description: 'Logs in a user with email and password.' })
-  @ApiResponse({ status: HttpStatus.OK, description: ResponseMessage.LOGIN_SUCCESS })
-  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Invalid credentials' })
+  @HttpCode(StatusCode.SUCCESS) 
   async login(@Body() loginDto: LoginDto) {
     try {
       const data = await this.authService.login(loginDto);
       return ResponseFormat(StatusCode.SUCCESS, ResponseMessage.LOGIN_SUCCESS, data);
     } catch (error) {
-      return ResponseFormat(StatusCode.UNAUTHORIZED, error.message);
+      throw new HttpException(
+        ResponseFormat(StatusCode.UNAUTHORIZED, error.message),
+        HttpStatus.UNAUTHORIZED,
+      );
     }
   }
 
+
+
   @Post('register')
   @ApiOperation({ summary: 'Register a user', description: 'Registers a new user with email and password.' })
-  @ApiResponse({ status: StatusCode.CREATED, description: ResponseMessage.REGISTRATION_SUCCESS })
-  @ApiResponse({ status: StatusCode.CONFLICT, description: 'User already exists' })
+  @HttpCode(StatusCode.CREATED)
   async register(@Body() registerDto: RegisterDto) {
     try {
       const data = await this.authService.register(registerDto);
       return ResponseFormat(StatusCode.CREATED, ResponseMessage.REGISTRATION_SUCCESS, data);
     } catch (error) {
-      return ResponseFormat(StatusCode.CONFLICT, error.message);
+      if (error.message === 'User already exists') {
+        throw new HttpException(
+          ResponseFormat(StatusCode.CONFLICT, 'Unable to register user: User already exists'),
+          HttpStatus.CONFLICT,
+        );
+      } else {
+        throw new HttpException(
+          ResponseFormat(StatusCode.INTERNAL_SERVER_ERROR, 'Unable to register user'),
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
   }
 }
+
