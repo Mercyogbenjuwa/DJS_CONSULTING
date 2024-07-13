@@ -20,7 +20,7 @@ import 'dotenv/config';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
       entities: [Post, User],
-      synchronize: true,
+      synchronize: false,
       ssl: {
         rejectUnauthorized: false, 
       },
